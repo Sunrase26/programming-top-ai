@@ -2,6 +2,7 @@ import datetime
 from decimal import Decimal
 
 DATE_FORMAT = "%Y-%m-%d"
+
 goods = {
     'Пельмени Универсальные': [
         # Первая партия продукта 'Пельмени Универсальные':
@@ -29,6 +30,12 @@ def add(items, title, amount, expiration_date=None):
         'expiration_date': exp_date
     })
 
+    if exp_date is None:
+        print(f"Добавлено «{title}» — {amount}, без срока годности")
+    else:
+        print(f"Добавлено «{title}» — {amount}, годен до {exp_date}")
+
+
 def add_by_note(items, note):
     """Преобразует текстовую строку и добавляет продукт в словарь items."""
     parts = note.split()
@@ -46,22 +53,37 @@ def add_by_note(items, note):
     amount = Decimal(amount)
     add(items, title, amount, expiration_date)
 
-def find(items, needle):
+    if expiration_date is None:
+        print(f"Из строки «{note}» → «{title}», {amount}, без срока годности")
+    else:
+        print(f"Из строки «{note}» → «{title}», {amount}, годен до {expiration_date}")
+
+def find(items, needle, flag=True):
     """Ищет продукты в холодильнике."""
     found_items = []
     for title in items.keys():
         if needle.lower() in title.lower():
             found_items.append(title)
             
+    if flag:
+        print(f"По запросу «{needle}» найдено: {found_items}")
+    
     return found_items
 
 def amount(items, needle):
     """Возвращает общее колво запрошенного продукта."""
-    found_products = find(items, needle)
+    found_products = find(items, needle, flag=False)
     total = Decimal('0')
     
     for title in found_products:
         for partiya in items[title]:
             total += partiya['amount']
             
-    return total
+    print(f"Всего по запросу «{needle}» найдено подходящих: {total}")
+
+
+# пример использования функций:
+add(goods, 'Молоко', Decimal('1.2'), '2023-09-10')
+add_by_note(goods, 'Хлеб Бородинский 0.4 2023-09-05')
+find(goods, 'пельмени')
+amount(goods, 'пельмени')
