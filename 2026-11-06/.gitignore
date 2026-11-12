@@ -1,0 +1,4 @@
+practice_2/venv/
+**/__pycache__/
+*.sqlite3
+.vscode/

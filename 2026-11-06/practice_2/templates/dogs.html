@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dog API</title>
+</head>
+<body style="font-family: Arial, sans-serif; margin: 40px;">
+    <h2>Поиск фотографий собак</h2>
+    
+    <form method="GET" style="margin-bottom: 30px;">
+        <label>Введите породы через запятую:</label><br><br>
+        <input type="text" name="breeds" value="{{ query }}" placeholder="african, chow, dingo" style="width: 300px; padding: 5px;">
+        <button type="submit" style="padding: 5px 15px;">Показать</button>
+    </form>
+
+    {% if images %}
+        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 40px;">
+            {% for img in images %}
+                <div style="border: 1px solid #ccc; padding: 10px; border-radius: 8px;">
+                    <h3 style="margin-top: 0;">{{ img.name|title }}</h3>
+                    <img src="{{ img.url }}" alt="{{ img.name }}" width="300" style="border-radius: 4px;">
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <h2>Список доступных пород:</h2>
+    <ol style="column-count: 3;">
+        {% for b in breeds %}
+            <li>{{ b }}</li>
+        {% endfor %}
+    </ol>
+</body>
+</html>
