@@ -3,32 +3,43 @@ from decimal import Decimal
 
 DATE_FORMAT = "%Y-%m-%d"
 
+
+class InvalidDateFormatError(ValueError):
+    """Исключение при вводе даты в неверном формате."""
+
+    def __init__(self, date_str, expected_format=DATE_FORMAT):
+        self.date_str = date_str
+        self.expected_format = expected_format
+        super().__init__(
+            f"Неверный формат даты: «{date_str}». Ожидается формат {expected_format} (например, 2026-12-31)."
+        )
+
+
 goods = {
-    'Пельмени Универсальные': [
+    "Пельмени Универсальные": [
         # Первая партия продукта 'Пельмени Универсальные':
-        {'amount': Decimal('0.5'), 'expiration_date': datetime.date(2023, 7, 15)},
+        {"amount": Decimal("0.5"), "expiration_date": datetime.date(2023, 7, 15)},
         # Вторая партия продукта 'Пельмени Универсальные':
-        {'amount': Decimal('2'), 'expiration_date': datetime.date(2023, 8, 1)},
+        {"amount": Decimal("2"), "expiration_date": datetime.date(2023, 8, 1)},
     ],
-    'Вода': [
-        {'amount': Decimal('1.5'), 'expiration_date': None}
-    ]
+    "Вода": [{"amount": Decimal("1.5"), "expiration_date": None}],
 }
+
 
 def add(items, title, amount, expiration_date=None):
     """Добавляет продукт в словарь items."""
     if expiration_date is not None:
-        exp_date = datetime.datetime.strptime(expiration_date, DATE_FORMAT).date()
+        try:
+            exp_date = datetime.datetime.strptime(expiration_date, DATE_FORMAT).date()
+        except ValueError as err:
+            raise InvalidDateFormatError(expiration_date) from err
     else:
         exp_date = None
 
     if title not in items:
         items[title] = []
-        
-    items[title].append({
-        'amount': amount,
-        'expiration_date': exp_date
-    })
+
+    items[title].append({"amount": amount, "expiration_date": exp_date})
 
     if exp_date is None:
         print(f"Добавлено «{title}» — {amount}, без срока годности")
@@ -40,16 +51,16 @@ def add_by_note(items, note):
     """Преобразует текстовую строку и добавляет продукт в словарь items."""
     parts = note.split()
 
-    if '-' in parts[-1]:
+    if "-" in parts[-1]:
         expiration_date = parts[-1]
         amount = parts[-2]
         # Объединяем оставшиеся части в название продукта
-        title = ' '.join(parts[:-2])
+        title = " ".join(parts[:-2])
     else:
         expiration_date = None
         amount = parts[-1]
-        title = ' '.join(parts[:-1])
-        
+        title = " ".join(parts[:-1])
+
     amount = Decimal(amount)
     add(items, title, amount, expiration_date)
 
@@ -58,32 +69,34 @@ def add_by_note(items, note):
     else:
         print(f"Из строки «{note}» → «{title}», {amount}, годен до {expiration_date}")
 
+
 def find(items, needle, flag=True):
     """Ищет продукты в холодильнике."""
     found_items = []
     for title in items.keys():
         if needle.lower() in title.lower():
             found_items.append(title)
-            
+
     if flag:
         print(f"По запросу «{needle}» найдено: {found_items}")
-    
+
     return found_items
+
 
 def amount(items, needle):
     """Возвращает общее колво запрошенного продукта."""
     found_products = find(items, needle, flag=False)
-    total = Decimal('0')
-    
+    total = Decimal("0")
+
     for title in found_products:
         for partiya in items[title]:
-            total += partiya['amount']
-            
+            total += partiya["amount"]
+
     print(f"Всего по запросу «{needle}» найдено подходящих: {total}")
 
 
 # пример использования функций:
-add(goods, 'Молоко', Decimal('1.2'), '2023-09-10')
-add_by_note(goods, 'Хлеб Бородинский 0.4 2023-09-05')
-find(goods, 'пельмени')
-amount(goods, 'пельмени')
+add(goods, "Молоко", Decimal("1.2"), "2023-09-10")
+add_by_note(goods, "Хлеб Бородинский 0.4 2023-09-05")
+find(goods, "пельмени")
+amount(goods, "пельмени")
